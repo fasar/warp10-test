@@ -21,3 +21,13 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Warp10 ignore
+
+**/warp10/leveldb
+**/warp10/lib/*
+**/warp10/datalog*
+**/warp10/logs/*
+**/sensision/metrics/*
+**/sensision/targets/*
+**/logs

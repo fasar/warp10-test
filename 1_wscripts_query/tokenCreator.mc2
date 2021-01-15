@@ -1,0 +1,61 @@
+
+// Execute the following script with: 
+// java -cp /opt/warp10/bin/warp10-2.7.1.jar io.warp10.worf.TokenGen /data/warp10/etc/conf.d/*.conf - -
+
+'testCI' 'applicationName' STORE
+NOW 30 d + 1 ms / 'expirydate' STORE
+'42424242-4242-4242-4242-424242424242' 'owner' STORE
+
+{
+  'READ'
+  {
+    'id' 'tokenR'  // for bookkeeping purposes
+    'type' 'READ'       // or 'WRITE'
+    'application' $applicationName // Name of applications for this token
+    'owner'  $owner     // UUID of the data owner for WRITE tokens or the billed user for READ tokens
+    'issuance' NOW  1 ms /    // Time of token issuance
+    'expiry' $expirydate // Time of token expiry
+    'labels' {}         // Map of token labels
+    'attributes' {}     // Map of token attributes
+    // The following are only for READ tokens, can be omitted, the token is then considered a WildCard token.
+    'owners' [  $owner ]
+    'producers' [ $owner ]
+    'applications' [ $applicationName ]
+  } TOKENGEN
+
+  'WRITE'
+  {
+    'id' 'tokenW'  // for bookkeeping purposes
+    'type' 'WRITE'       // or 'READ'
+    'application' $applicationName // Name of applications for this token
+    'owner'  $owner     // UUID of the data owner for WRITE tokens or the billed user for READ tokens
+    'producer' $owner  //owner = producer to be able to delete data.
+    'issuance' NOW   1 ms /     // Time of token issuance
+    'expiry' $expirydate // Time of token expiry
+    'labels' {}         // Map of token labels
+    'attributes' {}     // Map of token attributes
+  } TOKENGEN
+} 
+
+// GIVE output 
+// [
+//     {
+//         "READ": {
+//             "ident": "ebb1146186126f53",
+//             "id": "tokenR",
+//             "token": "ZmeE3NmMDEVIfFNuz4cbCd7EgyyjceoNvinQK7kCDOxQ3C2itZMPQjFkpFTHZKavOWBDE6xIIaZ10CrhwfOTrJ3.j.2R9uTahXNwKkQljdcYCTepNCYFAkeqJ89.7qkARrxxbmHYLuLBDAhna3MjAV"
+//         },
+//         "WRITE": {
+//             "ident": "829adfb4a2c7fd8d",
+//             "id": "tokenW",
+//             "token": "Tjy42HcUHYWpFPQowEoWxcMcNNPfi.mkrSjUsIWZEBJvKbonzjP.z7fwIhuzYjqZ7gh7enQ1XA0aaioAeZSoybprUrtOzZLzIouJsOHc..w"
+//         }
+//     }
+// ]
+
+'DCozc1pyOAqicrZMgVt1SOPYB7wVJgmBdF2K6YRTMHaZzRHvtM_Wx6WZceknZTMkJ9umy6ZlQXACZbd_59P9sR_3viRCNQZl7N_CegyhqQVjn0QYfWBO4cmKspOHLvNF001XuWRxAbx9Kyr05ADg3F'
+TOKENDUMP
+
+'Tjy42HcUHYWpFPQowEoWxcMcNNPfi.mkrSjUsIWZEBJvKbonzjP.z7fwIhuzYjqZ7gh7enQ1XA0aaioAeZSoybprUrtOzZLzIouJsOHc..w'
+TOKENDUMP
+

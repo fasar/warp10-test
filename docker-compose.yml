@@ -1,0 +1,49 @@
+# https://hub.docker.com/r/warp10io/warp10
+#
+# To run bash in docker with all the bindings, use :
+#
+# docker run --rm -it --name warp10-db1 --runtime runc -v $PWD/w10-data-db1:/data:rw \
+#       --net warp10-datalog-test_default
+#       -p 9080:8080/tcp -p 9081:8081/tcp --expose 8080/tcp --expose 8081/tcp \
+#       -e 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/jvm/java-1.8-openjdk/jre/bin:/usr/lib/jvm/java-1.8-openjdk/bin:/opt/warp10/bin' \
+#       -e 'LANG=C.UTF-8' -e 'JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk/jre' -e 'JAVA_VERSION=8u212' -e 'JAVA_ALPINE_VERSION=8.212.04-r0' -e 'WARP10_VOLUME=/data' \
+#       -e 'WARP10_HOME=/opt/warp10' -e 'WARP10_DATA_DIR=/data/warp10' -e 'SENSISION_HOME=/opt/sensision' -e 'SENSISION_DATA_DIR=/data/sensision' -e 'WARP10_VERSION=2.7.1' \
+#       -e 'WARPSTUDIO_VERSION=1.0.40' -e 'SENSISION_VERSION=1.0.23' -e 'WARP10_JAR=/opt/warp10/bin/warp10-2.7.1.jar' -e 'WARP10_CONFIG_DIR=/opt/warp10/etc/conf.d' \
+#       -e 'WARP10_MACROS=/data/custom_macros' \
+#       -d warp10io/warp10:2.7.1-ci '/bin/sh' '-c' bash
+#
+# The normal command is : ${WARP10_HOME}/bin/warp10.start.sh
+
+
+version: '2'
+
+
+networks:
+    warp10_net:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 10.0.0.0/24
+                  ip_range: 10.0.0.0/24
+
+
+services:
+    warp10-db1:
+        image: warp10io/warp10:2.7.1-ci
+        container_name: warp10-db1
+        volumes:
+            - ./w10-data-db1/:/data
+        # restart: always
+        networks:
+            warp10_net:
+                ipv4_address: 10.0.0.101
+
+    warp10-db2:
+        image: warp10io/warp10:2.7.1-ci
+        container_name: warp10-db2
+        volumes:
+            - ./w10-data-db2/:/data
+        # restart: always
+        networks:
+            warp10_net:
+                ipv4_address: 10.0.0.102

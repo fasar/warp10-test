@@ -1,0 +1,36 @@
+// This script is based on the script found here : https://www.cerenit.fr/blog/timeseries-state-duration/
+// Updated with the help of Pierre in Warp10 Google group : https://groups.google.com/g/warp10-users/c/9VAm4Dvflo0
+// Storing the token into a variable
+'readTokenCI' 'token' STORE
+'writeTokenCI' 'wtoken' STORE
+$token AUTHENTICATE
+2147483647 LIMIT
+2147483647 MAXBUCKETS 
+2147483647 MAXOPS
+
+'2020-01-01T00:00:00Z' TOTIMESTAMP 'start' STORE
+2 d 'duration' STORE
+
+
+// Step 1 - Start the FIND with the token as first parameter
+{
+  'token' $token
+  'selectors' [ 'test.signal{name=sin}'  ]
+  'end'     $start $duration + 1 s -
+  'start'   $start
+  'boundary.pre' 0
+  'type' 'DOUBLE'
+} FETCH 0 GET 
+
+0.0 >
+
+################################
+STOP
+################################
+
+// On prend la taille des éléments filtré et on multiplie le nombre d'entrées par 1 s
+SIZE
+1 s *
+
+// On applique le filtre HUMANDURATION qui transforme ce volume de secondes en une durée compréhensible
+HUMANDURATION

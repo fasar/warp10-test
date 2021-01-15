@@ -1,0 +1,4 @@
+NEWGTS 'input' RENAME
+1 100 <% s NaN NaN NaN RAND 20 * ADDVALUE %> FOR
+
+{ 'label0' '42' 'label1' 'foo' } RELABEL

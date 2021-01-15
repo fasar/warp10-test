@@ -1,0 +1,20 @@
+// Storing the token into a variable
+'readTokenCI' 'token' STORE
+$token AUTHENTICATE
+2147483647 LIMIT
+2147483647 MAXBUCKETS 
+2147483647 MAXOPS
+
+
+{
+  'token' $token
+  //'selectors' [ 'test.signal{name=cos}' 'test.signal{name=sin}'  ]
+  'selectors' [ 'scms.blr.lines{station=BYPH,signal=VLD_STATUS}'  ]
+  'start'   0
+  'end'     NOW
+  'type' 'DOUBLE'
+} FETCH 
+
+// VLD Close 6 times
+// FROM: '2019-08-27T19:50:00Z'
+// TO: '2019-08-27T21:10:00Z'

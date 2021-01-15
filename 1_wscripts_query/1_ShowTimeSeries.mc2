@@ -1,0 +1,11 @@
+// Storing the token into a variable
+'readTokenCI' 'token' STORE
+
+// Start the FIND with the token as first parameter
+[
+    $token
+    // Here you must put the classname and label selectors...
+    '~.*'
+    { }
+    //{ 'signal' 'VVLD' }
+] FIND

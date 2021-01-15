@@ -1,0 +1,18 @@
+// Write token
+'writeTokenCI' 'token' STORE
+
+$token
+
+// Gts selector
+'test.signal{name=realTime}'
+
+// Start Timestamp
+0
+
+// End timestamp
+NOW
+
+// DELETE expects a count number (if nb GTS > count, DELETE is stopped)
+100
+
+DELETE 

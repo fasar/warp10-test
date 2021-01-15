@@ -1,0 +1,58 @@
+// Storing the token into a variable
+'readTokenCI' 'token' STORE
+$token AUTHENTICATE
+2147483647 LIMIT
+2147483647 MAXBUCKETS 
+2147483647 MAXOPS
+
+
+'2019-08-01T00:00:00Z' TOTIMESTAMP 'start' STORE
+'2019-09-01T00:00:00Z' TOTIMESTAMP 'end' STORE
+$end $start - 'duration' STORE
+12 h 'window' STORE
+
+////
+////  Get data for VVLD and VLD_STATUS
+////
+{
+  'token' $token
+  'selectors' [ 'scms.blr.lines{station=BYPH,signal=VLD_STATUS}'  ]
+  'start'   $start
+  'end'     $end
+  'boundary.pre' 1
+  'type' 'DOUBLE'
+} FETCH 'SIGNALS' STORE
+
+//// 
+//// Resample the VLD STATUS to have a value every 1 seconds
+////
+// Create the ts we want to calculate
+[]
+$start $end
+<% $window + %>
+<% [ SWAP ] APPEND %> FORSTEP  
+'ech' STORE
+// Resample VLD_STATUS 
+$SIGNALS 
+{
+  'mapper'  
+  // mapper.count
+  <%
+      'mapping_window' STORE
+      [ 0 NaN NaN NaN  $mapping_window 7 GET SIZE ]
+  %> MACROMAPPER
+  'pre' $window -1 *
+  'post' $window -1 *
+  'occurences' 0
+  'step' 1
+  'override' false
+  'ticks' $ech
+} MAP 'vldStatus' RENAME 
+STOP
+'vldStatus' STORE
+
+$vldStatus 0 ==
+
+SIZE
+1 s * 
+HUMANDURATION

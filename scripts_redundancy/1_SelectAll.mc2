@@ -1,0 +1,34 @@
+// Storing the token into a variable
+'readTokenCI' 'token' STORE
+'writeTokenCI' 'wtoken' STORE
+$token AUTHENTICATE
+2147483647 LIMIT
+2147483647 MAXBUCKETS 
+2147483647 MAXOPS
+
+// Start the FIND with the token as first parameter
+[
+    $token
+    // Here you must put the classname and label selectors...
+    '~.*'
+    { }
+] FIND
+
+
+
+'2020-01-01T00:00:00Z' TOTIMESTAMP 'start' STORE
+12 h 'duration' STORE
+
+
+// Step 1 - Start the FIND with the token as first parameter
+{
+  'token' $token
+  //'selectors' [ 'test.signal{name=cos}' 'test.signal{name=sin}'  ]
+  'selectors' [ 'test.signal{name=sin}' ]
+  'end'     $start $duration +
+  'start'   $start
+  'type' 'DOUBLE'
+} FETCH
+
+
+

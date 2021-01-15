@@ -1,0 +1,84 @@
+// Storing the token into a variable
+'readTokenCI' 'token' STORE
+$token AUTHENTICATE
+2147483647 LIMIT
+2147483647 MAXBUCKETS 
+2147483647 MAXOPS
+
+'2019-08-05T06:00:00Z' TOTIMESTAMP 'start' STORE
+20 m 'duration' STORE
+
+// Create the Resampling macro
+<%
+  'mapping_window' STORE
+  [ 
+      $mapping_window 0 GET  'curTick' STORE
+      
+      $curTick                      // Tick
+      $mapping_window 4 GET 0 GET   // Latitude
+      $mapping_window 5 GET 0 GET   // Longitude
+      $mapping_window 6 GET 0 GET   // Elevation
+
+      // Next commands give the linear interpolation of the two points 
+      // IF nb point > 2 THEN do the linear interpolation
+      <% $mapping_window 7 GET SIZE 2 >= %> // Check
+      <%
+          $mapping_window 3 GET 0 GET 'firstPointTs' STORE
+          $mapping_window 7 GET 0 GET 'firstPointValue' STORE
+          $mapping_window 3 GET 1 GET 'secondPointTs' STORE
+          $mapping_window 7 GET 1 GET 'secondPointValue' STORE
+          $secondPointTs $firstPointTs - TODOUBLE 'interPointsTime' STORE
+
+          $secondPointTs $curTick - $interPointsTime  /   // Percentage of the first point
+          $firstPointValue *                              // Value of the first point with percentage ponderation
+          $curTick $firstPointTs -  $interPointsTime  /   // Percentage of the second pont
+          $secondPointValue *                             // Value of the second point with percentage ponderation
+          +                                               // Addition of the two points
+      %>
+      <% NULL %>
+      IFTE
+  ]
+%> 'resamplFnc' STORE
+
+// Step 1 - Start the FIND with the token as first parameter
+[
+    $token
+    // Here you must put the classname and label selectors...
+    'scms.blr.lines'
+    { 'station' '~BSNK|ATU' 'signal' 'VVLD' }
+    $start $duration +
+    $duration
+] FETCH  'signal' RENAME
+'signal' STORE
+
+
+[]
+0 $duration 
+<% 1 s + %>
+<% 'i' STORE [ $start $duration + $i - ] APPEND %> FORSTEP
+
+'ech' STORE
+
+$signal
+{
+  'mapper' $resamplFnc MACROMAPPER
+  'pre' 1
+  'post' 1
+  'occurences' 0
+  'step' 1
+  'override' false
+  'ticks' $ech
+} 
+MAP  'resampled' STORE
+
+$resampled
+
+[
+  SWAP
+  bucketizer.mean
+  0
+  1 m
+  0
+] BUCKETIZE
+
+

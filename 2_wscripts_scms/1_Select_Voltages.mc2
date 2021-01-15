@@ -1,0 +1,20 @@
+// Storing the token into a variable
+'readTokenCI' 'token' STORE
+$token AUTHENTICATE
+2147483647 LIMIT
+2147483647 MAXBUCKETS 
+2147483647 MAXOPS
+
+'2019-08-01T05:00:00Z' TOTIMESTAMP 'start' STORE
+1 d 'duration' STORE
+
+
+// Get data 
+{
+  'token' $token
+  'selectors' [ 'scms.blr.lines{station=BYPH,signal=VVLD}' ]
+  'start'   $start
+  'end'     $start $duration  +
+  'type' 'DOUBLE'
+} FETCH
+
